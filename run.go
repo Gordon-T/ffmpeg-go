@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"sort"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -256,6 +257,7 @@ func (s *Stream) Silent(isSilent bool) *Stream {
 func (s *Stream) Compile(options ...CompilationOption) *exec.Cmd {
 	args := s.GetArgs()
 	cmd := exec.CommandContext(s.Context, s.FfmpegPath, args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	if a, ok := s.Context.Value("Stdin").(io.Reader); ok {
 		cmd.Stdin = a
 	}
@@ -268,7 +270,7 @@ func (s *Stream) Compile(options ...CompilationOption) *exec.Cmd {
 	for _, option := range GlobalCommandOptions {
 		option(cmd)
 	}
-  if LogCompiledCommand {
+	if LogCompiledCommand {
 		log.Printf("compiled command: ffmpeg %s\n", strings.Join(args, " "))
 	}
 	return cmd

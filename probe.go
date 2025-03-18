@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"syscall"
 	"time"
 )
 
@@ -32,7 +33,8 @@ func ProbeWithTimeoutExec(fileName string, timeOut time.Duration, kwargs KwArgs)
 		ctx, cancel = context.WithTimeout(context.Background(), timeOut)
 		defer cancel()
 	}
-	cmd := exec.CommandContext(ctx, "ffprobe", args...)
+	cmd := exec.CommandContext(ctx, "./ffprobe", args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	buf := bytes.NewBuffer(nil)
 	stdErrBuf := bytes.NewBuffer(nil)
 	cmd.Stdout = buf
